@@ -1,2 +1,10 @@
 ---
+# データベースの設定
+database:
+  # 現在sqliteのみ使用できます
+  type: sqlite
+  sqlite:
+    # sqliteのファイル名
+    file: data.db
+  worker-limit: 1
 ...

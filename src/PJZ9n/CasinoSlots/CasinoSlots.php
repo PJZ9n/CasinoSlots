@@ -28,6 +28,11 @@ use pocketmine\plugin\PluginBase;
 class CasinoSlots extends PluginBase
 {
     
-    //
+    public function onEnable(): void
+    {
+        //Init Config
+        $this->saveDefaultConfig();
+        $this->reloadConfig();
+    }
     
 }

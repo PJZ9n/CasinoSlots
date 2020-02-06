@@ -1,0 +1,12 @@
+--- # Poggit-CI Manifest. Open the CI at https://poggit.pmmp.io/ci/PJZ9n/CasinoSlots
+build-by-default: true
+branches:
+- master
+projects:
+  CasinoSlots:
+    libs:
+      format: virion
+      vendor: poggit-project
+      src: PJZ9n/FormAPI/libFormAPI
+      version: 1.3.0
+...

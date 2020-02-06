@@ -24,15 +24,24 @@ declare(strict_types=1);
 namespace PJZ9n\CasinoSlots;
 
 use pocketmine\plugin\PluginBase;
+use poggit\libasynql\DataConnector;
+use poggit\libasynql\libasynql;
 
 class CasinoSlots extends PluginBase
 {
+    
+    /** @var DataConnector */
+    private $db;
     
     public function onEnable(): void
     {
         //Init Config
         $this->saveDefaultConfig();
         $this->reloadConfig();
+        //Init DB
+        $this->db = libasynql::create($this, $this->getConfig()->get("database", []), [
+            "sqlite" => "sqls/sqlite.sql",
+        ]);
     }
     
 }

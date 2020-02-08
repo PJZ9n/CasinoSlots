@@ -23,6 +23,7 @@ use PJZ9n\CasinoSlots\API\CasinoSlotsAPI;
 use PJZ9n\CasinoSlots\Game\Exception\Player\AlreadySeatedException;
 use PJZ9n\CasinoSlots\Game\Exception\Player\NotSeatedException;
 use PJZ9n\CasinoSlots\Game\Game;
+use PJZ9n\CasinoSlots\Game\Slot\DrawSlot;
 use PJZ9n\CasinoSlots\Game\Slot\Exception\AlreadyDrawingException;
 use pocketmine\command\Command;
 use pocketmine\command\CommandExecutor;
@@ -85,6 +86,12 @@ class GameCommand extends PluginCommand implements CommandExecutor
                 if (!$game instanceof Game) {
                     $sender->sendMessage("そのゲームは存在しません。");
                     return true;
+                }
+                if ($game instanceof DrawSlot) {
+                    if ($game->getDrawing()) {
+                        $sender->sendMessage("すでに実行中です。");
+                        return true;
+                    }
                 }
                 $seatedPlayer = $game->getSeatedPlayer();
                 if (!$seatedPlayer instanceof Player) {

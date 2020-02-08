@@ -17,10 +17,13 @@
 
 declare(strict_types=1);
 
+//警告: この名前空間以下のコードすべては気分を害する恐れがあります。
+//閲覧する場合には十分気を付けてください。完全に自己責任でお願いします。
 namespace PJZ9n\CasinoSlots;
 
 use PJZ9n\CasinoSlots\Command\GameCommand;
 use PJZ9n\CasinoSlots\Game\Game;
+use PJZ9n\CasinoSlots\Game\SaveData;
 use PJZ9n\CasinoSlots\Game\Slot\StarSlot\StarSlot;
 use pocketmine\event\Listener;
 use pocketmine\permission\Permission;
@@ -35,7 +38,10 @@ class CasinoSlots extends PluginBase implements Listener
     /** @var DataConnector */
     private $db;
     
-    /** @var Game[] */
+    /**
+     * @var Game[]
+     * [string "ゲーム名" => Game[]]
+     */
     private $games;
     
     public function onEnable(): void
@@ -51,6 +57,10 @@ class CasinoSlots extends PluginBase implements Listener
         $this->db = libasynql::create($this, $dbSetting, [
             "sqlite" => "sqls/sqlite.sql",
         ]);
+        $this->db->executeGeneric("CasinoSlots.savedata.init", [], function () {
+            $this->getLogger()->debug("データベースの初期化処理が完了しました。");
+        });
+        $this->db->waitAll();//初期化待ち
         //Init Permission
         PermissionManager::getInstance()->addPermission(new Permission(
             "casinoslots.command.cgame",
@@ -77,9 +87,55 @@ class CasinoSlots extends PluginBase implements Listener
                 }
                 $this->games[$gameName][$makeNumber] = $makeGame;
                 $this->getLogger()->debug("{$gameName} のID {$makeNumber} を作成しました。");
+                if ($makeGame instanceof SaveData) {
+                    $this->db->executeSelect("CasinoSlots.savedata.get", [
+                        "name" => $makeGame->getName(),
+                        "id" => $makeGame->getId(),
+                    ], function (array $rows) use ($makeGame) {
+                        if (isset($rows[0]["data"])) {
+                            $data = json_decode($rows[0]["data"], true);
+                            $makeGame->inputSaveData($data);
+                            $this->getLogger()->debug("レコードからデータを取得しました。");
+                        } else {
+                            $this->db->executeInsert("CasinoSlots.savedata.add", [
+                                "name" => $makeGame->getName(),
+                                "id" => $makeGame->getId(),
+                                "data" => json_encode($makeGame->outputSaveData()),
+                            ], function (int $insertId, int $affectedRows) {
+                                $this->getLogger()->debug("ID: {$insertId}, {$affectedRows} 個のレコードを作成しました。");
+                            });
+                        }
+                    });
+                    $this->db->waitAll();//最終待機
+                }
             }
         }
         $this->getLogger()->info(count($this->games) . " 種類のゲームが利用可能です。");
+    }
+    
+    public function onDisable(): void
+    {
+        //Gameの終了処理
+        foreach ($this->games as $gameArray) {
+            foreach ($gameArray as $game) {
+                /** @var Game $game */
+                $this->getLogger()->debug("{$game->getName()} のID {$game->getId()} の修了処理をします。");
+                if ($game instanceof SaveData) {
+                    $this->db->executeChange("CasinoSlots.savedata.update", [
+                        "data" => json_encode($game->outputSaveData()),
+                        "name" => $game->getName(),
+                        "id" => $game->getId(),
+                    ], function (int $affectedRows) {
+                        $this->getLogger()->debug("{$affectedRows} 個のアップデートが完了しました。");
+                    });
+                }
+            }
+        }
+        //データベースの修了処理
+        $this->db->waitAll();
+        if ($this->db instanceof DataConnector) {
+            $this->db->close();
+        }
     }
     
 }

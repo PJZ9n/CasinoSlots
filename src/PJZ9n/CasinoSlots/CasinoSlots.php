@@ -21,6 +21,7 @@ namespace PJZ9n\CasinoSlots;
 
 use PJZ9n\CasinoSlots\Command\SlotCommand;
 use PJZ9n\CasinoSlots\Game\Game;
+use PJZ9n\CasinoSlots\Game\Slot\StarSlot\StarSlot;
 use pocketmine\event\Listener;
 use pocketmine\permission\Permission;
 use pocketmine\permission\PermissionManager;
@@ -60,6 +61,25 @@ class CasinoSlots extends PluginBase implements Listener
         $this->getServer()->getCommandMap()->register("CasinoSlots", new SlotCommand($this));
         //Init Games
         $this->games = [];
+        $games = $this->getConfig()->get("games");
+        foreach ($games as $gameName => $gameOption) {
+            for ($makeNumber = 1; $makeNumber <= $gameOption["make-number"]; $makeNumber++) {
+                //あまり良くない実装
+                /** @var Game $makeGame */
+                $makeGame = null;
+                switch ($gameName) {
+                    case "starslot":
+                        $makeGame = new StarSlot($makeNumber, $this->getScheduler());
+                        break;
+                    default:
+                        $this->getLogger()->warning($gameName . " は存在しません。");
+                        continue 2;
+                }
+                $this->games[$gameName][$makeNumber] = $makeGame;
+                $this->getLogger()->debug("{$gameName} のID {$makeNumber} を作成しました。");
+            }
+        }
+        $this->getLogger()->info(count($this->games) . " 種類のゲームが利用可能です。");
     }
     
 }

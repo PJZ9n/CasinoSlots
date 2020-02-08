@@ -6,5 +6,4 @@ database:
   sqlite:
     # sqliteのファイル名
     file: data.db
-  worker-limit: 1
 ...

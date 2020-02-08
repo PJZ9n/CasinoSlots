@@ -43,7 +43,11 @@ class CasinoSlots extends PluginBase implements Listener
         $this->saveDefaultConfig();
         $this->reloadConfig();
         //Init DB
-        $this->db = libasynql::create($this, $this->getConfig()->get("database", []), [
+        $dbSetting = [];
+        $dbSetting["type"] = $this->getConfig()->getNested("database.type", null);
+        $dbSetting["sqlite"]["file"] = $this->getConfig()->getNested("database.sqlite.file", null);
+        $dbSetting["worker-limit"] = 1;
+        $this->db = libasynql::create($this, $dbSetting, [
             "sqlite" => "sqls/sqlite.sql",
         ]);
         //Init Permission

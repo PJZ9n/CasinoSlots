@@ -1,4 +1,11 @@
 ---
+# ゲームの設定
+games:
+  # ゲーム名
+  starslot:
+    # 作成する数
+    make-number: 5
+
 # データベースの設定
 database:
   # 現在sqliteのみ使用できます

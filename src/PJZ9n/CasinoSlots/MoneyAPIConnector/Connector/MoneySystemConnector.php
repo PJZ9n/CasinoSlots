@@ -17,43 +17,33 @@
 
 declare(strict_types=1);
 
-namespace PJZ9n\CasinoSlots\Game\Slot;
+namespace PJZ9n\CasinoSlots\MoneyAPIConnector\Connector;
 
-use PJZ9n\CasinoSlots\Game\Game;
-use PJZ9n\CasinoSlots\Game\Setting;
+use metowa1227\moneysystem\api\core\API;
+use PJZ9n\CasinoSlots\MoneyAPIConnector\MoneyAPIConnector;
+use pocketmine\Player;
 
-abstract class Slot extends Game implements Setting
+class MoneySystemConnector implements MoneyAPIConnector
 {
     
-    /** @var int */
-    private $setting;
-    
-    /**
-     * Slot constructor.
-     *
-     * @param int $id
-     * @param int $cost
-     */
-    public function __construct(int $id, int $cost)
+    public function getMoney(Player $player): int
     {
-        parent::__construct($id, $cost);
-        $this->setting = 1;
+        return (int)API::getInstance()->get($player);
     }
     
-    /**
-     * @inheritDoc
-     */
-    public function setSetting(int $setting): void
+    public function setMoney(Player $player, int $money): void
     {
-        $this->setting = $setting;
+        API::getInstance()->set($player, $money);
     }
     
-    /**
-     * @inheritDoc
-     */
-    public function getSetting(): int
+    public function addMoney(Player $player, int $money): void
     {
-        return $this->setting;
+        API::getInstance()->increase($player, $money);
+    }
+    
+    public function takeMoney(Player $player, int $money): void
+    {
+        API::getInstance()->reduce($player, $money);
     }
     
 }

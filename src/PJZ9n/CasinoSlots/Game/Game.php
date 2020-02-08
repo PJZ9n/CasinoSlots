@@ -22,6 +22,7 @@ namespace PJZ9n\CasinoSlots\Game;
 use PJZ9n\CasinoSlots\Game\Exception\Player\AlreadySeatedException;
 use PJZ9n\CasinoSlots\Game\Exception\Player\NotSeatedException;
 use PJZ9n\CasinoSlots\Game\Slot\Exception\AlreadyDrawingException;
+use PJZ9n\CasinoSlots\MoneyAPIConnector\MoneyAPIConnector;
 use pocketmine\Player;
 
 abstract class Game
@@ -30,6 +31,9 @@ abstract class Game
     /** @var int */
     private $id;
     
+    /** @var int */
+    private $cost;
+    
     /** @var Player|null */
     private $seatedPlayer;
     
@@ -37,10 +41,12 @@ abstract class Game
      * Game constructor.
      *
      * @param int $id
+     * @param int $cost
      */
-    public function __construct(int $id)
+    public function __construct(int $id, int $cost)
     {
         $this->id = $id;
+        $this->cost = $cost;
         $this->seatedPlayer = null;
     }
     
@@ -111,6 +117,16 @@ abstract class Game
         if ($this->getSeatedPlayer() === null) {
             throw new NotSeatedException($this);
         }
+    }
+    
+    /**
+     * スタートに必要な金額を取得する
+     *
+     * @return int
+     */
+    public function getNeedMoney(): int
+    {
+        return $this->cost;
     }
     
 }

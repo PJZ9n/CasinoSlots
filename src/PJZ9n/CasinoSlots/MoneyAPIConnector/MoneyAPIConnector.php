@@ -17,43 +17,43 @@
 
 declare(strict_types=1);
 
-namespace PJZ9n\CasinoSlots\Game\Slot;
+namespace PJZ9n\CasinoSlots\MoneyAPIConnector;
 
-use PJZ9n\CasinoSlots\Game\Game;
-use PJZ9n\CasinoSlots\Game\Setting;
+use pocketmine\Player;
 
-abstract class Slot extends Game implements Setting
+interface MoneyAPIConnector
 {
     
-    /** @var int */
-    private $setting;
-    
     /**
-     * Slot constructor.
+     * 所持金を取得する
      *
-     * @param int $id
-     * @param int $cost
+     * @param Player $player
+     *
+     * @return int
      */
-    public function __construct(int $id, int $cost)
-    {
-        parent::__construct($id, $cost);
-        $this->setting = 1;
-    }
+    public function getMoney(Player $player): int;
     
     /**
-     * @inheritDoc
+     * 所持金を設定する
+     *
+     * @param Player $player
+     * @param int $money
      */
-    public function setSetting(int $setting): void
-    {
-        $this->setting = $setting;
-    }
+    public function setMoney(Player $player, int $money): void;
     
     /**
-     * @inheritDoc
+     * 所持金を増額する
+     *
+     * @param Player $player
+     * @param int $money
      */
-    public function getSetting(): int
-    {
-        return $this->setting;
-    }
+    public function addMoney(Player $player, int $money): void;
     
+    /**
+     * 所持金を減額する
+     *
+     * @param Player $player
+     * @param int $money
+     */
+    public function takeMoney(Player $player, int $money): void;
 }

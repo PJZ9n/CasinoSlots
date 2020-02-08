@@ -50,13 +50,15 @@ abstract class DrawSlot extends Slot
     private $drawing;
     
     /**
-     * Draw constructor.
+     * DrawSlot constructor.
      *
+     * @param int $id
+     * @param int $cost
      * @param TaskScheduler $taskScheduler
      */
-    protected function __construct(int $id, TaskScheduler $taskScheduler)
+    protected function __construct(int $id, int $cost, TaskScheduler $taskScheduler)
     {
-        parent::__construct($id);
+        parent::__construct($id, $cost);
         $this->taskScheduler = $taskScheduler;
         $this->taskHandler = null;
         $this->loop = 0;

@@ -21,16 +21,22 @@ declare(strict_types=1);
 //閲覧する場合には十分気を付けてください。完全に自己責任でお願いします。
 namespace PJZ9n\CasinoSlots;
 
+use PJZ9n\CasinoSlots\API\CasinoSlotsAPI;
 use PJZ9n\CasinoSlots\Command\GameCommand;
 use PJZ9n\CasinoSlots\Game\Game;
 use PJZ9n\CasinoSlots\Game\SaveData;
 use PJZ9n\CasinoSlots\Game\Slot\StarSlot\StarSlot;
+use PJZ9n\CasinoSlots\MoneyAPIConnector\Connector\EconomyAPIConnector;
+use PJZ9n\CasinoSlots\MoneyAPIConnector\Connector\MixCoinSystemConnector;
+use PJZ9n\CasinoSlots\MoneyAPIConnector\Connector\MoneySystemConnector;
+use PJZ9n\CasinoSlots\MoneyAPIConnector\MoneyAPIConnector;
 use pocketmine\event\Listener;
 use pocketmine\permission\Permission;
 use pocketmine\permission\PermissionManager;
 use pocketmine\plugin\PluginBase;
 use poggit\libasynql\DataConnector;
 use poggit\libasynql\libasynql;
+use RuntimeException;
 
 class CasinoSlots extends PluginBase implements Listener
 {
@@ -38,17 +44,40 @@ class CasinoSlots extends PluginBase implements Listener
     /** @var DataConnector */
     private $db;
     
+    /** @var MoneyAPIConnector */
+    private $moneyAPIConnector;
+    
     /**
      * @var Game[]
      * [string "ゲーム名" => Game[]]
      */
     private $games;
     
+    /** @var bool */
+    private $processFinished;
+    
     public function onEnable(): void
     {
+        $this->processFinished = false;
         //Init Config
         $this->saveDefaultConfig();
         $this->reloadConfig();
+        //Init moneyAPIConnector
+        $useApi = $this->getConfig()->getNested("moneyapi.use", null);
+        switch ($useApi) {
+            case "EconomyAPI":
+                $this->moneyAPIConnector = new EconomyAPIConnector();
+                break;
+            case "MoneySystem":
+                $this->moneyAPIConnector = new MoneySystemConnector();
+                break;
+            case "MixCoinSystem":
+                $this->moneyAPIConnector = new MixCoinSystemConnector();
+                break;
+            default:
+                throw new RuntimeException("対応していない経済APIが指定されています。");
+        }
+        $this->getLogger()->info("現在 {$useApi} の経済APIが指定されています。");
         //Init DB
         $dbSetting = [];
         $dbSetting["type"] = $this->getConfig()->getNested("database.type", null);
@@ -79,7 +108,7 @@ class CasinoSlots extends PluginBase implements Listener
                 $makeGame = null;
                 switch ($gameName) {
                     case "starslot":
-                        $makeGame = new StarSlot($makeNumber, $this->getScheduler());
+                        $makeGame = new StarSlot($makeNumber, $gameOption["cost"], $this->getScheduler());
                         break;
                     default:
                         $this->getLogger()->warning($gameName . " は存在しません。");
@@ -111,10 +140,17 @@ class CasinoSlots extends PluginBase implements Listener
             }
         }
         $this->getLogger()->info(count($this->games) . " 種類のゲームが利用可能です。");
+        //Init API
+        new CasinoSlotsAPI($this->games, $this->moneyAPIConnector);
+        $this->processFinished = true;
     }
     
     public function onDisable(): void
     {
+        //onEnableの処理途中でプラグインが無効化された場合
+        if (!$this->processFinished) {
+            return;
+        }
         //Gameの終了処理
         foreach ($this->games as $gameArray) {
             foreach ($gameArray as $game) {

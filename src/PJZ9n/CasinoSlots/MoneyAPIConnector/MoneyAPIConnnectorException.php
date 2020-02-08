@@ -17,43 +17,20 @@
 
 declare(strict_types=1);
 
-namespace PJZ9n\CasinoSlots\Game\Slot;
+namespace PJZ9n\CasinoSlots\MoneyAPIConnector;
 
-use PJZ9n\CasinoSlots\Game\Game;
-use PJZ9n\CasinoSlots\Game\Setting;
+use Exception;
 
-abstract class Slot extends Game implements Setting
+/**
+ * Class MoneyAPIConnnectorException
+ * MoneyAPIConnectorで発生した例外。
+ *
+ * @link MoneyAPIConnector
+ * @package PJZ9n\CasinoSlots\MoneyAPIConnector
+ */
+class MoneyAPIConnnectorException extends Exception
 {
     
-    /** @var int */
-    private $setting;
-    
-    /**
-     * Slot constructor.
-     *
-     * @param int $id
-     * @param int $cost
-     */
-    public function __construct(int $id, int $cost)
-    {
-        parent::__construct($id, $cost);
-        $this->setting = 1;
-    }
-    
-    /**
-     * @inheritDoc
-     */
-    public function setSetting(int $setting): void
-    {
-        $this->setting = $setting;
-    }
-    
-    /**
-     * @inheritDoc
-     */
-    public function getSetting(): int
-    {
-        return $this->setting;
-    }
+    //
     
 }

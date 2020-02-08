@@ -110,7 +110,7 @@ class GameCommand extends PluginCommand implements CommandExecutor
                 }
                 $moneyAPIConnector->takeMoney($seatedPlayer, $game->getNeedMoney());
                 $game->gameStart();
-                break;
+                return true;
             case "data":
                 if (!isset($args[1], $args[2])) {
                     return false;

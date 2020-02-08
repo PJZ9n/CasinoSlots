@@ -62,6 +62,16 @@ class CasinoSlots extends PluginBase implements Listener
         //Init Config
         $this->saveDefaultConfig();
         $this->reloadConfig();
+        //Check Config Version
+        $resourceConfig = yaml_parse(stream_get_contents($this->getResource("config.yml")));
+        $resourceConfigVersion = $resourceConfig["config-version"];
+        $configVersion = $this->getConfig()->get("config-version");
+        if ($resourceConfigVersion > $configVersion) {
+            $this->getLogger()->notice("新しいconfig.yml(バージョン: {$resourceConfigVersion})があります。");
+            $this->getLogger()->notice("更新するには、config.ymlのコピーを取ってから削除して再起動してください。");
+        } else {
+            $this->getLogger()->info("config.ymlは最新(バージョン: {$configVersion})です。");
+        }
         //Init moneyAPIConnector
         $useApi = $this->getConfig()->getNested("moneyapi.use", null);
         switch ($useApi) {

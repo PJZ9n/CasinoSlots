@@ -1,4 +1,7 @@
 ---
+#編集しないでください
+config-version: 1
+
 #経済APIの設定
 moneyapi:
   #EconomyAPI, MoneySytem, MixCoinSystemが使用できます。

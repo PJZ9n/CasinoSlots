@@ -19,7 +19,7 @@ declare(strict_types=1);
 
 namespace PJZ9n\CasinoSlots;
 
-use PJZ9n\CasinoSlots\Command\SlotCommand;
+use PJZ9n\CasinoSlots\Command\GameCommand;
 use PJZ9n\CasinoSlots\Game\Game;
 use PJZ9n\CasinoSlots\Game\Slot\StarSlot\StarSlot;
 use pocketmine\event\Listener;
@@ -53,12 +53,12 @@ class CasinoSlots extends PluginBase implements Listener
         ]);
         //Init Permission
         PermissionManager::getInstance()->addPermission(new Permission(
-            "casinoslots.command.slot",
+            "casinoslots.command.cgame",
             null,
             Permission::DEFAULT_TRUE
         ));
         //Init Command
-        $this->getServer()->getCommandMap()->register("CasinoSlots", new SlotCommand($this));
+        $this->getServer()->getCommandMap()->register("CasinoSlots", new GameCommand($this));
         //Init Games
         $this->games = [];
         $games = $this->getConfig()->get("games");

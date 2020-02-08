@@ -25,24 +25,22 @@ use pocketmine\command\CommandSender;
 use pocketmine\command\PluginCommand;
 use pocketmine\plugin\Plugin;
 
-class SlotCommand extends PluginCommand implements CommandExecutor
+class GameCommand extends PluginCommand implements CommandExecutor
 {
     
     public function __construct(Plugin $owner)
     {
-        parent::__construct("casinoslot", $owner);
+        parent::__construct("cgame", $owner);
         $this->setExecutor($this);
         $this->setAliases([
-            "slot",
-            "cslot",
-            "cs",
+            "game",
         ]);
-        $this->setDescription("スロットをスタートする");
+        $this->setDescription("ゲームを操作する");
         $this->setUsage(/** @lang TEXT */
-            "/casinoslot start <type> <id>\n" .
-            "/casinoslot data <type> <id>\n" .
-            "/casinoslot admin <type>");
-        $this->setPermission("casinoslots.command.slot");
+            "/cgame start <type> <id>\n" .
+            "/cgame data <type> <id>\n" .
+            "/cgame admin <type>");
+        $this->setPermission("casinoslots.command.cgame");
     }
     
     public function onCommand(CommandSender $sender, Command $command, string $label, array $args): bool

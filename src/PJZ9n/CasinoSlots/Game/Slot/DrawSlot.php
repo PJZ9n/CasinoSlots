@@ -159,7 +159,7 @@ abstract class DrawSlot extends Slot
      *
      * @return bool
      */
-    protected function getDrawing(): bool
+    public function getDrawing(): bool
     {
         return $this->drawing;
     }
